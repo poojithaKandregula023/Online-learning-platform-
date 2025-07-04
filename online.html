@@ -1,0 +1,184 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LearnIt - Coding App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f2f2f2;
+      color: #333;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
+    .progress {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body><div class="container" id="app">
+  <h1>LearnIt</h1>  <div id="signupScreen">
+    <h2>Sign Up</h2>
+    <input type="text" id="signupUsername" placeholder="Username">
+    <input type="password" id="signupPassword" placeholder="Password">
+    <button onclick="signup()">Sign Up</button>
+    <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+  </div>  <div id="loginScreen" style="display:none;">
+    <h2>Login</h2>
+    <input type="text" id="loginUsername" placeholder="Username">
+    <input type="password" id="loginPassword" placeholder="Password">
+    <button onclick="login()">Login</button>
+  </div>  <div id="homeScreen" style="display:none;">
+    <h2>Welcome, <span id="userNameDisplay"></span>!</h2>
+    <button onclick="showVideo()">🎬 Start Coding Lesson</button>
+    <button onclick="startQuiz()">📝 Take Quiz</button>
+    <p class="progress">Progress: <span id="progressDisplay">0%</span></p>
+  </div>  <div id="videoScreen" style="display:none;">
+    <h2>Lesson: HTML Basics</h2>
+    <a href="https://www.youtube.com/watch?v=pQN-pnXPaVg" target="_blank">▶ Watch Coding Video</a>
+    <button onclick="backHome()">Back to Home</button>
+  </div>  <div id="quizScreen" style="display:none;">
+    <h2>Quick Quiz</h2>
+    <div class="question" id="quizQuestion"></div>
+    <div id="quizOptions"></div>
+    <button onclick="backHome()">Back to Home</button>
+  </div></div><script>
+  let currentUser = '';
+  let progress = localStorage.getItem('progress') || 0;
+  let currentQuestionIndex = 0;
+  let score = 0;
+
+  const questions = [
+    { q: "What does HTML stand for?", a: "B", options: { A: "Hyper Trainer Markup Language", B: "Hyper Text Markup Language", C: "Home Tool Markup Language" } },
+    { q: "What does CSS stand for?", a: "C", options: { A: "Creative Style System", B: "Computer Style Sheet", C: "Cascading Style Sheets" } },
+    { q: "Which tag is used for inserting a line break?", a: "A", options: { A: "<br>", B: "<break>", C: "<lb>" } },
+    { q: "Which attribute specifies an image source?", a: "B", options: { A: "alt", B: "src", C: "link" } },
+    { q: "Which tag is used to create a hyperlink?", a: "A", options: { A: "<a>", B: "<link>", C: "<href>" } },
+    { q: "JavaScript can change HTML content using?", a: "C", options: { A: "HTML", B: "CSS", C: "DOM" } },
+    { q: "Which symbol is used for comments in HTML?", a: "B", options: { A: "// comment", B: "<!-- comment -->", C: "/* comment */" } },
+    { q: "What does WWW stand for?", a: "A", options: { A: "World Wide Web", B: "Web World Wire", C: "Wide Web Window" } },
+    { q: "Which company developed JavaScript?", a: "C", options: { A: "Microsoft", B: "Apple", C: "Netscape" } },
+    { q: "How do you write 'Hello World' in alert box?", a: "B", options: { A: "alertBox('Hello World')", B: "alert('Hello World')", C: "msg('Hello World')" } }
+  ];
+
+  function signup() {
+    const username = document.getElementById('signupUsername').value.trim();
+    const password = document.getElementById('signupPassword').value.trim();
+    if (username && password) {
+      localStorage.setItem('user_' + username, password);
+      alert('Signup successful! Please login.');
+      showLogin();
+    } else {
+      alert('Please enter username and password.');
+    }
+  }
+
+  function showLogin() {
+    document.getElementById('signupScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'block';
+  }
+
+  function login() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    const storedPassword = localStorage.getItem('user_' + username);
+
+    if (password === storedPassword) {
+      currentUser = username;
+      document.getElementById('userNameDisplay').innerText = currentUser;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('homeScreen').style.display = 'block';
+      updateProgressDisplay();
+    } else {
+      alert('Invalid username or password.');
+    }
+  }
+
+  function showVideo() {
+    document.getElementById('homeScreen').style.display = 'none';
+    document.getElementById('videoScreen').style.display = 'block';
+    updateProgress(50);
+  }
+
+  function backHome() {
+    document.getElementById('videoScreen').style.display = 'none';
+    document.getElementById('quizScreen').style.display = 'none';
+    document.getElementById('homeScreen').style.display = 'block';
+  }
+
+  function startQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    document.getElementById('homeScreen').style.display = 'none';
+    document.getElementById('quizScreen').style.display = 'block';
+    showQuestion();
+  }
+
+  function showQuestion() {
+    if (currentQuestionIndex < questions.length) {
+      const q = questions[currentQuestionIndex];
+      document.getElementById('quizQuestion').innerText = (currentQuestionIndex + 1) + '. ' + q.q;
+
+      let optionsHTML = '';
+      for (let key in q.options) {
+        optionsHTML += `<button onclick="answerQuiz('${key}')">${key}. ${q.options[key]}</button><br>`;
+      }
+      document.getElementById('quizOptions').innerHTML = optionsHTML;
+    } else {
+      finishQuiz();
+    }
+  }
+
+  function answerQuiz(choice) {
+    const q = questions[currentQuestionIndex];
+    if (choice === q.a) {
+      alert('✅ Correct!');
+      score++;
+    } else {
+      alert('❌ Wrong!');
+    }
+    currentQuestionIndex++;
+    showQuestion();
+  }
+
+  function finishQuiz() {
+    alert(`Quiz completed!\nYour score: ${score}/${questions.length}`);
+    updateProgress(100);
+    backHome();
+  }
+
+  function updateProgress(value) {
+    if (parseInt(progress) < value) {
+      progress = value;
+      localStorage.setItem('progress', progress);
+      updateProgressDisplay();
+    }
+  }
+
+  function updateProgressDisplay() {
+    document.getElementById('progressDisplay').innerText = progress + '%';
+  }
+</script></body>
+</html>
