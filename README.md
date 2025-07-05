@@ -29,3 +29,9 @@ Ideal for mobile learners and beginners.
 Works offline (after first load) since it's a simple web app.
 
 No need for complex installations or databases.
+
+
+![Image](https://github.com/user-attachments/assets/f61008ca-2516-4215-80bd-151ef89bc9f5)
+![Image](https://github.com/user-attachments/assets/57dd319a-f584-48c1-b115-e5f0319d7d3f)
+![Image](https://github.com/user-attachments/assets/64ba163d-3975-46e0-91e4-acdbc031ba8f)
+![Image](https://github.com/user-attachments/assets/80d6d7d0-eb26-4e83-bff3-b7d1d5c0ea31)
